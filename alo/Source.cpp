@@ -322,7 +322,7 @@ void  Checkboard()
 				TURN = true;
 				_A[h][k].c = -1;
 			}
-	gotoxy(_X, _Y);
+//	gotoxy(_X, _Y);
 }
 void processCheckBoard()
 {
@@ -753,7 +753,6 @@ void MoveDown() {
 		gotoxy(_X, _Y);
 	}
 };
-
 void MoveUp() {
 	PlaySoundEffect(3);
 	if (_Y > _A[0][0].y)
@@ -817,11 +816,14 @@ int START()
 				{
 					textcolor(White);
 					Checkboard();
+					gotoxy(40, 38); cout << _X;
+					gotoxy(40, 39); cout << _Y;
+					gotoxy(40, 40); cout << _A[h][k].c;
 					if (KT() == true)
 					{
-						if (_A[h][k].c == -1)
+						if (_A[(_X-6)/3][(_Y-4)/2].c == 1)
 						{
-							P2();
+							P1();
 						
 							temp = _continue();
 							if (temp == 0)
@@ -838,7 +840,7 @@ int START()
 						}
 						else
 						{
-							P1();
+							P2();
 						
 							temp = _continue();
 							if (temp == 0)
@@ -1319,14 +1321,14 @@ void DICHUYENKHILOAD() // xuất các file da lưu
 	char _COMMAND;
 	int j = 1;
 	demf = demfile;
-	textcolor(3);
+	textcolor(White);
 	for (int i = 1; i <= demf; i++)
 	{
 
 		gotoxy(3, i + 5);
 		cout << _Loadfile[i] << endl;
 
-	}  textcolor(6);
+	}  textcolor(BLUE);
 	gotoxy(3, 6); cout << _Loadfile[1];
 	while (1)
 	{
@@ -1336,10 +1338,10 @@ void DICHUYENKHILOAD() // xuất các file da lưu
 
 			if   (j > 1)
 			{
-				textcolor(3);
+				textcolor(White);
 				gotoxy(3, j + 5);
 				cout << _Loadfile[j];
-				j--; textcolor(6);
+				j--; textcolor(BLUE);
 				gotoxy(3, j + 5);
 				cout << _Loadfile[j];
 			}
@@ -1351,10 +1353,10 @@ void DICHUYENKHILOAD() // xuất các file da lưu
 
 			if (j < demf)
 			{
-				textcolor(3);
+				textcolor(White);
 				gotoxy(3, j + 5);
 				cout << _Loadfile[j];
-				j++; textcolor(6);
+				j++; textcolor(BLUE);
 				gotoxy(3, j + 5);
 				cout << _Loadfile[j];
 			}
