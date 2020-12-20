@@ -1,19 +1,22 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
-#include <iostream>
 #include <conio.h>
 #include <Windows.h>
 #include <MMsystem.h>
+#include <fstream>
+#include<iostream>
 #include "Header.h"
+using namespace std;
 
-
-bool TURN;
+bool TURN, KTLOADGAME = false;
 char _COMMAND;
 int _X, _Y;
-int dem = 0, demy = 0, _tranthangO = 0, _tranthangX = 0;
 bool l = true;
 int h = 0, k = 0;
 string A[] = { "New Game","Load Game","Instruction","ABout Us","Exit" };
 int Score_p1 = 0, Score_p2 = 0;
+int dem = 0, demy = 0;// đếm số quân x ,o
+int demf = 0;
+string _Loadfile[30];
 
 struct _POINT {
 	int x, y, c;
@@ -25,6 +28,12 @@ void gotoxy(int x, int y) {
 	coord.X = x;
 	coord.Y = y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+};
+void DisableSelection()
+{
+    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+
+    SetConsoleMode(hStdin, ~ENABLE_QUICK_EDIT_MODE);
 };
 void resizeConsole(int width, int height)
 {
@@ -209,7 +218,77 @@ void ShowCur(bool CursorVisibility)
 	ConCurInf.bVisible = CursorVisibility;
 
 	SetConsoleCursorInfo(handle, &ConCurInf);
-};
+}; 
+void CAPNHAT_X()
+{
+	textcolor(Pink);
+	gotoxy(BOARD_SIZE * 2 + 56, BOARD_SIZE * 2 - 10);
+	cout << " P2";
+	textcolor(White);
+
+	gotoxy(BOARD_SIZE * 2 + 38, BOARD_SIZE * 2 - 10);
+	cout << " P1";
+
+	// bôi đen X
+	textcolor(Black);
+	gotoxy(BOARD_SIZE * 2 + 35, BOARD_SIZE * 2 - 5);
+	cout << "ooo   ooo" << endl;
+	gotoxy(BOARD_SIZE * 2 + 35, BOARD_SIZE * 2 - 4);
+	cout << " ooo ooo" << endl;
+	gotoxy(BOARD_SIZE * 2 + 35, BOARD_SIZE * 2 - 3);
+	cout << "   ooo" << endl;
+	gotoxy(BOARD_SIZE * 2 + 35, BOARD_SIZE * 2 - 2);
+	cout << " ooo ooo " << endl;
+	gotoxy(BOARD_SIZE * 2 + 35, BOARD_SIZE * 2 - 1);
+	cout << "ooo   ooo" << endl;
+	// tô màu O
+	textcolor(BLUE);
+	gotoxy(BOARD_SIZE * 2 + 55, BOARD_SIZE * 2 - 5);
+	cout << " oooo" << endl;
+	gotoxy(BOARD_SIZE * 2 + 55, BOARD_SIZE * 2 - 4);
+	cout << "o    o" << endl;
+	gotoxy(BOARD_SIZE * 2 + 55, BOARD_SIZE * 2 - 3);
+	cout << "o    o" << endl;
+	gotoxy(BOARD_SIZE * 2 + 55, BOARD_SIZE * 2 - 2);
+	cout << "o    o" << endl;
+	gotoxy(BOARD_SIZE * 2 + 55, BOARD_SIZE * 2 - 1);
+	cout << " oooo" << endl;
+
+}
+void CAPNHAT_O()
+{
+	textcolor(Pink);
+	gotoxy(BOARD_SIZE * 2 + 38, BOARD_SIZE * 2 - 10);
+	cout << " P1";
+
+	textcolor(White);
+	gotoxy(BOARD_SIZE * 2 + 56, BOARD_SIZE * 2 - 10);
+	cout << " P2";
+	//bôi màu O
+	textcolor(Black);
+	gotoxy(BOARD_SIZE * 2 + 55, BOARD_SIZE * 2 - 5);
+	cout << " oooo" << endl;
+	gotoxy(BOARD_SIZE * 2 + 55, BOARD_SIZE * 2 - 4);
+	cout << "o    o" << endl;
+	gotoxy(BOARD_SIZE * 2 + 55, BOARD_SIZE * 2 - 3);
+	cout << "o    o" << endl;
+	gotoxy(BOARD_SIZE * 2 + 55, BOARD_SIZE * 2 - 2);
+	cout << "o    o" << endl;
+	gotoxy(BOARD_SIZE * 2 + 55, BOARD_SIZE * 2 - 1);
+	cout << " oooo" << endl;
+	// Tô màu X
+	textcolor(RED);
+	gotoxy(BOARD_SIZE * 2 + 35, BOARD_SIZE * 2 - 5);
+	cout << "ooo   ooo" << endl;
+	gotoxy(BOARD_SIZE * 2 + 35, BOARD_SIZE * 2 - 4);
+	cout << " ooo ooo" << endl;
+	gotoxy(BOARD_SIZE * 2 + 35, BOARD_SIZE * 2 - 3);
+	cout << "   ooo" << endl;
+	gotoxy(BOARD_SIZE * 2 + 35, BOARD_SIZE * 2 - 2);
+	cout << " ooo ooo " << endl;
+	gotoxy(BOARD_SIZE * 2 + 35, BOARD_SIZE * 2 - 1);
+	cout << "ooo   ooo" << endl;
+}
 void  Checkboard()
 {
 	ShowCur(1);
@@ -223,32 +302,10 @@ void  Checkboard()
 				cout << "X";
 				dem++;
 				// bôi đen X
-				textcolor(Black);
-				gotoxy(BOARD_SIZE*2 + 38, BOARD_SIZE*2 - 24);
+				textcolor(RED);
+				gotoxy(BOARD_SIZE * 2 + 38, BOARD_SIZE * 2 - 24);
 				cout << dem;
-				gotoxy(BOARD_SIZE*2 + 35, BOARD_SIZE*2 - 5);
-				cout << "ooo   ooo" << endl;
-				gotoxy(BOARD_SIZE*2 + 35, BOARD_SIZE*2 - 4);
-				cout << " ooo ooo" << endl;
-				gotoxy(BOARD_SIZE*2 + 35, BOARD_SIZE*2 - 3);
-				cout << "   ooo" << endl;
-				gotoxy(BOARD_SIZE*2 + 35, BOARD_SIZE*2 - 2);
-				cout << " ooo ooo " << endl;
-				gotoxy(BOARD_SIZE*2 + 35, BOARD_SIZE*2 - 1);
-				cout << "ooo   ooo" << endl;
-				// tô màu O
-				textcolor(BLUE);
-				gotoxy(BOARD_SIZE*2 + 55, BOARD_SIZE*2 - 5);
-				cout << " oooo" << endl;
-				gotoxy(BOARD_SIZE*2 + 55, BOARD_SIZE*2 - 4);
-				cout << "o    o" << endl;
-				gotoxy(BOARD_SIZE*2 + 55, BOARD_SIZE*2 - 3);
-				cout << "o    o" << endl;
-				gotoxy(BOARD_SIZE*2 + 55, BOARD_SIZE*2 - 2);
-				cout << "o    o" << endl;
-				gotoxy(BOARD_SIZE*2 + 55, BOARD_SIZE*2 - 1);
-				cout << " oooo" << endl;
-				gotoxy(_X, _Y);
+				CAPNHAT_X();
 				TURN = false;
 				_A[h][k].c = 1;
 			}
@@ -258,36 +315,14 @@ void  Checkboard()
 				cout << "O";
 				demy++;
 				//bôi màu O
-				textcolor(Black);
-				gotoxy(BOARD_SIZE*2 + 58, BOARD_SIZE*2 - 24);
+				textcolor(BLUE);
+				gotoxy(BOARD_SIZE * 2 + 58, BOARD_SIZE * 2 - 24);
 				cout << demy;
-				gotoxy(BOARD_SIZE*2 + 55, BOARD_SIZE*2 - 5);
-				cout << " oooo" << endl;
-				gotoxy(BOARD_SIZE*2 + 55, BOARD_SIZE*2 - 4);
-				cout << "o    o" << endl;
-				gotoxy(BOARD_SIZE*2 + 55, BOARD_SIZE*2 - 3);
-				cout << "o    o" << endl;
-				gotoxy(BOARD_SIZE*2 + 55, BOARD_SIZE*2 - 2);
-				cout << "o    o" << endl;
-				gotoxy(BOARD_SIZE*2 + 55, BOARD_SIZE*2 - 1);
-				cout << " oooo" << endl;
-				// Tô màu X
-				textcolor(RED);
-				gotoxy(BOARD_SIZE*2 + 35, BOARD_SIZE*2 - 5);
-				cout << "ooo   ooo" << endl;
-				gotoxy(BOARD_SIZE*2 + 35, BOARD_SIZE*2 - 4);
-				cout << " ooo ooo" << endl;
-				gotoxy(BOARD_SIZE*2 + 35, BOARD_SIZE*2 - 3);
-				cout << "   ooo" << endl;
-				gotoxy(BOARD_SIZE*2 + 35, BOARD_SIZE*2 - 2);
-				cout << " ooo ooo " << endl;
-				gotoxy(BOARD_SIZE*2 + 35, BOARD_SIZE*2 - 1);
-				cout << "ooo   ooo" << endl;
-				gotoxy(_X, _Y);
+				CAPNHAT_O();
 				TURN = true;
 				_A[h][k].c = -1;
 			}
-	
+	gotoxy(_X, _Y);
 }
 void processCheckBoard()
 {
@@ -462,13 +497,55 @@ void starGame()
 {
 	ShowCur(1);
 	system("cls");
-	Reset();
 	PlaySoundEffect(4);
 	Draw();
 	processCheckBoard();
-//	gotoxy(_X, _Y);
-};
 
+	if (KTLOADGAME == false) Reset(); //lấy dữ liệu cũ ra, ko reset nếu load game
+	else
+	{
+		for (int i = 0; i < BOARD_SIZE - 1; i++)
+		{
+			for (int j = 0; j < BOARD_SIZE - 1; j++)
+			{
+				if (_A[i][j].c == 1)
+				{
+					textcolor(RED);
+					gotoxy(_A[j][i].x, _A[j][i].y);
+					cout << "X";
+				}
+				else
+					if (_A[i][j].c == -1)
+					{
+						textcolor(BLUE);
+						gotoxy(_A[j][i].x, _A[j][i].y);
+						cout << "0";
+					}
+			}
+		}
+		_COMMAND = -1;
+
+		_X = _A[0][0].x;
+		_Y = _A[0][0].y;
+
+
+		KTLOADGAME = false;
+	}
+	if (demy >= dem)
+	{
+		TURN = true;
+		CAPNHAT_O();
+	}
+	else
+
+	{
+		TURN = false; CAPNHAT_X();
+	}
+	h = 0; k = 0;
+	gotoxy(_X, _Y);
+}
+
+//	gotoxy(_X, _Y);
 void P1()
 {	
 	system("cls");
@@ -507,6 +584,27 @@ void P2()
 	gotoxy(i, j + 9); cout << "| '--------------' || '--------------' | | '--------------' || '--------------' || '--------------' |";
 	gotoxy(i, j + 10); cout << " '----------------'  '----------------'   '----------------'  '----------------'  '----------------' ";
 }
+void HOA()  //hieu ung hoa
+{
+	PlaySoundEffect(5);
+	system("cls");
+
+	gotoxy(35, 10); cout << endl;
+	cout << "     HH            HH         OOOOOO            AAAAAAAAAAA   \n";
+	cout << "     HH            HH       OO     OOO          AAA      AAA  \n";
+	cout << "     HH            HH     OO         OO         AAA       AAA  \n";
+	cout << "     HH            HH     OO          OO        AAA        AAA  \n";
+	cout << "     HH            HH     OO          OOO       AAAAAAAAAAAAAAA  \n";
+	cout << "     HHHHHHHHHHHHHHHH     OO          OOO       AAAAAAAAAAAAAAAA  \n";
+	cout << "     HH            HH     OO          OOO       AAA         AAAAA  \n";
+	cout << "     HH            HH     OO          OOO       AAA          AAAAA   \n";
+	cout << "     HH            HH      OO         OOO       AAA          AAAAAA   \n";
+	cout << "     HH            HH       OO      OOO         AAA           AAAAAA   \n";
+	cout << "     HH            HH         OOOOOOO           AAA            AAAAAA  \n";
+
+
+}
+
 
 bool KT_doc(int n, int m)
 {
@@ -687,69 +785,98 @@ int _continue()
 }
 int START()
 {
+
 	int k = 0, temp, check = 0;
 	while (1) {
 		_COMMAND = toupper(_getch());
 		if (_COMMAND == 27)
 		{
+			Score_p1 = 0;
+			Score_p2 = 0;
+			dem = 0;
+			demy = 0;
 			return 0;
 		}
-		else {
-			if (_COMMAND == 'A') MoveLeft();
-			else if (_COMMAND == 'W') MoveUp();
-			else if (_COMMAND == 'S') MoveDown();
-			else if (_COMMAND == 'D') MoveRight();
-			else if (_COMMAND == 13)
+		else
+			if (_COMMAND == 'Q')
 			{
-				textcolor(White);
-				Checkboard();
-				if (KT() == true)
+				save();
+				Score_p1 = 0;
+				Score_p2 = 0;
+				dem = 0;
+				demy = 0;
+
+				return 0;
+			}
+			else {
+				if ((_COMMAND == 'A') || (int(_COMMAND) == 75)) MoveLeft();
+				else if ((_COMMAND == 'W') || (int(_COMMAND) == 72)) MoveUp();
+				else if ((_COMMAND == 'S') || (int(_COMMAND) == 80)) MoveDown();
+				else if ((_COMMAND == 'D') || (int(_COMMAND) == 77)) MoveRight();
+				else if (_COMMAND == 13)
 				{
-					if (_A[h][k].c == -1)
+					textcolor(White);
+					Checkboard();
+					if (KT() == true)
 					{
-						P2();
-						Sleep(400);
-						temp = _continue();
-						if (temp == 0)
+						if (_A[h][k].c == -1)
 						{
-							Score_p2 = 0;
-							check = 1;
+							P2();
+						
+							temp = _continue();
+							if (temp == 0)
+							{
+								Score_p2 = 0;
+								check = 1;
+							}
+							else
+							{
+								Score_p2++;
+								starGame();
+							}
+
 						}
 						else
 						{
-							Score_p2++;
-							starGame();
-						}
-					
+							P1();
+						
+							temp = _continue();
+							if (temp == 0)
+							{
+								Score_p1 = 0;
+								check = 1;
+							}
+							else
+							{
+								Score_p1++;
+								starGame();
+							}
+
+
+						};
 					}
 					else
-					{
-						P1();
-						Sleep(400);
-						temp = _continue();
-						if (temp == 0)
-						{	
-							Score_p1 = 0;
-							check = 1;
-						}
-						else
+						if (dem + demy == (BOARD_SIZE - 1) * (BOARD_SIZE - 1))
 						{
-							Score_p1++;
-							starGame();
+							HOA();
+							dem = 0;
+							demy = 0;
+							temp = _continue();
+							if (temp == 0)
+							{
+								Score_p1 = 0;
+								Score_p2 = 0;
+								check = 1;
+							}
+							else {
+								starGame();
+							}
 						}
+						if (check == 1) break;
 
-						
-					};
-					if (check == 1) break;
 				}
-			}
-			else  if (_COMMAND == 'Q')
-			{
-				k = save_Game();
-				return k;
-			}
 
-		}
+			}
 	}
 	return 0;
 }
@@ -1135,84 +1262,141 @@ void Menu()
 
 
 }
-int save_Game()
+//Ham save du lieu
+void save()
 {
-		int i = 40, j = 15;
-		char fsave[100];
-		system("cls");
-		_cout(i - 2, j - 1, "|");
-		_cout(i - 2, j, "|");
-		_cout(i - 2, j + 1, "|");
-		for (int m=0;m<11;m++)
-		{
-			_cout(i - 2 + m, j - 1, "-");
-		}
-		for (int m = 0; m < 16; m++)
-		{
-			_cout(i - 2 + m, j + 1, "-");
-		}
-		gotoxy(i, j);
-		textcolor(Yellow);
-		cout << "Nhap ten file save : ";
-		cin >> fsave;
-		textcolor(White);
-		strcat(fsave, ".txt");
-		FILE* fp = fopen(fsave, "wt");
-		FILE* fp1 = fopen("List.txt", "at");
-		fputs(fsave, fp1);
-		fputs("\n", fp1);
+	demf++;
+	string str;
+	//system("clr");
+	gotoxy(1, 39);
+	cout << "NAME:";
+	//cin.getline(str, 30);
+	getline(cin, str,'\n');
+	str += ".txt";
+	//demo
+	ofstream filelist;
+	filelist.open("List.txt", ios::out | ios::app);
+	filelist << str << "\n";
+	filelist.close();
+	//
+	ofstream FileDemo(str);
+	_Loadfile[demf] = str;
 
-	//	fprintf(fp, "%d", BOARD_SIZE);
-		for (int i = 0; i < BOARD_SIZE; i++)
-		{
-			for (int j = 0; j < BOARD_SIZE; j++)
-				fprintf(fp, "%d", _A[i][j].c);
-		}
-		fprintf(fp, "%d", Score_p1);
-		fprintf(fp, "%d", Score_p2);
-		fprintf(fp, "%d", TURN);
-		fclose(fp);
-		fclose(fp1);
-	return 0;
-	
+	for (int i = 0; i < BOARD_SIZE - 1; i++)
+	{
+		for (int j = 0; j < BOARD_SIZE - 1; j++)
+			FileDemo << _A[j][i].c << " ";
+
+		FileDemo << "\n";
+	}
+
+	FileDemo << Score_p1 << " " << Score_p2 << " " << dem << " " << demy;
+
+	FileDemo.close();
+
 }
-void Load_Game()
+
+//Ham LOAD du lieu
+void DICHUYENKHILOAD() // xuất các file da lưu
 {
 	system("cls");
-	char file[256];
-	char file_load[256] = "";
-	int i = 30, j = 20, q = 0;
-	int t=0;
-		textcolor(Yellow);
-		_cout(i, j, "Danh sach file da luu: ");
-		textcolor(BLUE);
-	    	FILE* fp = fopen("List.txt", "r");
-		while (!feof(fp))
-		{
-			fgets(file, 50, fp);
-			_cout(i + 26, j, file);
-			j=j+2;
-		};
-		textcolor(Yellow);
-		_cout(i + 12, j + 10, "Nhap file can load: ");
-		textcolor(BLUE);
-		cin >> file_load;
-
-	strcat(file_load, ".txt");
-	FILE* fp1 = fopen(file_load, "r");
-	fscanf(fp1, "%d", t);
-	for (int m = 0; m < BOARD_SIZE; m++)
+	gotoxy(10, 3);
+	int demfile = 1;
+	cout << "  ESC DE VE MENU,'ENTER' de chon ";
+	gotoxy(10, 4);
+	cout << " 'W' DE di chuyen len,'S' DE di chuyen xuong!";
+	ifstream filelist("List.txt");
+	while (!filelist.eof())
 	{
-		for (int n=0; n < BOARD_SIZE; n++)
+		char temp[255];
+		filelist.getline(temp, 255);
+		string line = temp;
+		//cout << line << std::endl;
+		_Loadfile[demfile] = line;
+		demfile++;
+	}
+	filelist.close();
+	char _COMMAND;
+	int j = 1;
+	demf = demfile;
+	textcolor(3);
+	for (int i = 1; i <= demf; i++)
+	{
+
+		gotoxy(3, i + 5);
+		cout << _Loadfile[i] << endl;
+
+	}  textcolor(6);
+	gotoxy(3, 6); cout << _Loadfile[1];
+	while (1)
+	{
+		_COMMAND = toupper(_getch());
+		if (_COMMAND == 'W')
 		{
-			fscanf(fp1, "%d", _A[m][n].c);
+
+			if   (j > 1)
+			{
+				textcolor(3);
+				gotoxy(3, j + 5);
+				cout << _Loadfile[j];
+				j--; textcolor(6);
+				gotoxy(3, j + 5);
+				cout << _Loadfile[j];
+			}
+		}
+
+
+		if (_COMMAND == 'S')
+		{
+
+			if (j < demf)
+			{
+				textcolor(3);
+				gotoxy(3, j + 5);
+				cout << _Loadfile[j];
+				j++; textcolor(6);
+				gotoxy(3, j + 5);
+				cout << _Loadfile[j];
+			}
+		}
+		if (int(_COMMAND) == 13)
+		{
+			Load(_Loadfile[j]);
+			KTLOADGAME = true;
+			starGame();
+			START();
+			break;
+		}
+		if (int(_COMMAND) == 27)
+		{
+			break;
 		}
 	}
-	fscanf(fp1, "%d", Score_p1);
-	fscanf(fp1, "%d", Score_p2);
-	fscanf(fp1, "%d", TURN);
-	fclose(fp1);
-	starGame();
-	START();
+
+
+}
+void Load(string fileName)    //Ham Load du lieu da luu
+{
+	system("cls");
+
+
+	int v;
+	ifstream ff(fileName);
+	for (int i = 0; i < BOARD_SIZE - 1; i++)
+		for (int j = 0; j < BOARD_SIZE - 1; j++)
+		{
+			ff >> v;
+			_A[j][i].c = v;
+
+		}
+	ff >> Score_p1;
+	ff >> Score_p2;
+	ff >> dem;
+	ff >> demy;
+
+	//while (ff >> v)
+	//	cout << v;
+	ff.close();
+
 }
 
