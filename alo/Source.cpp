@@ -1,4 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #include <conio.h>
 #include <Windows.h>
 #include <MMsystem.h>
@@ -7,7 +7,7 @@
 #include "Header.h"
 using namespace std;
 
-bool TURN, KTLOADGAME = false;
+bool TURN, KTLOADGAME;
 char _COMMAND;
 int _X, _Y;
 bool l = true;
@@ -322,7 +322,7 @@ void  Checkboard()
 				TURN = true;
 				_A[h][k].c = -1;
 			}
-//	gotoxy(_X, _Y);
+	gotoxy(_X, _Y);
 }
 void processCheckBoard()
 {
@@ -490,6 +490,7 @@ void Reset() {
 	TURN = true;
 	_X = _A[0][0].x;
 	_Y = _A[0][0].y;
+	KTLOADGAME = false;
 };
 
 
@@ -500,10 +501,15 @@ void starGame()
 	PlaySoundEffect(4);
 	Draw();
 	processCheckBoard();
-
-	if (KTLOADGAME == false) Reset(); //lấy dữ liệu cũ ra, ko reset nếu load game
-	else
+	if (KTLOADGAME == true)  //lấy dữ liệu cũ ra, ko reset nếu load game
 	{
+		for (int i = 0; i < BOARD_SIZE - 1; i++) {
+			for (int j = 0; j < BOARD_SIZE - 1; j++) {
+				_A[i][j].x = LEFT + 3 + j * 3;
+				_A[i][j].y = 2 * i + TOP + 3;
+			}
+		}
+	//	cout << Score_p1 << " " << Score_p2 << " " << dem << " " << demy;
 		for (int i = 0; i < BOARD_SIZE - 1; i++)
 		{
 			for (int j = 0; j < BOARD_SIZE - 1; j++)
@@ -511,36 +517,38 @@ void starGame()
 				if (_A[i][j].c == 1)
 				{
 					textcolor(RED);
-					gotoxy(_A[j][i].x, _A[j][i].y);
-					cout << "X";
+						gotoxy(_A[i][j].x, _A[i][j].y);
+						cout << "X";
 				}
 				else
 					if (_A[i][j].c == -1)
 					{
 						textcolor(BLUE);
-						gotoxy(_A[j][i].x, _A[j][i].y);
+						gotoxy(_A[i][j].x, _A[i][j].y);
 						cout << "0";
 					}
 			}
 		}
-		_COMMAND = -1;
+			_COMMAND = -1;
 
 		_X = _A[0][0].x;
 		_Y = _A[0][0].y;
 
 
 		KTLOADGAME = false;
-	}
-	if (demy >= dem)
-	{
-		TURN = true;
-		CAPNHAT_O();
-	}
-	else
 
-	{
-		TURN = false; CAPNHAT_X();
+		if (demy >= dem)
+		{
+			TURN = true;
+			CAPNHAT_O();
+		}
+		else
+
+		{
+			TURN = false; CAPNHAT_X();
+		}
 	}
+	else Reset();
 	h = 0; k = 0;
 	gotoxy(_X, _Y);
 }
@@ -796,92 +804,83 @@ int START()
 			demy = 0;
 			return 0;
 		}
-		else
-			if (_COMMAND == 'Q')
+		else if (_COMMAND == 'Q')
+		{
+			save();
+			return 0;
+		}
+		else {
+			if ((_COMMAND == 'A') || (int(_COMMAND) == 75)) MoveLeft();
+			else if ((_COMMAND == 'W') || (int(_COMMAND) == 72)) MoveUp();
+			else if ((_COMMAND == 'S') || (int(_COMMAND) == 80)) MoveDown();
+			else if ((_COMMAND == 'D') || (int(_COMMAND) == 77)) MoveRight();
+			else if (_COMMAND == 13)
 			{
-				save();
-				Score_p1 = 0;
-				Score_p2 = 0;
-				dem = 0;
-				demy = 0;
-
-				return 0;
-			}
-			else {
-				if ((_COMMAND == 'A') || (int(_COMMAND) == 75)) MoveLeft();
-				else if ((_COMMAND == 'W') || (int(_COMMAND) == 72)) MoveUp();
-				else if ((_COMMAND == 'S') || (int(_COMMAND) == 80)) MoveDown();
-				else if ((_COMMAND == 'D') || (int(_COMMAND) == 77)) MoveRight();
-				else if (_COMMAND == 13)
+				textcolor(White);
+				Checkboard();
+				if (KT() == true)
 				{
-					textcolor(White);
-					Checkboard();
-					gotoxy(40, 38); cout << _X;
-					gotoxy(40, 39); cout << _Y;
-					gotoxy(40, 40); cout << _A[h][k].c;
-					if (KT() == true)
+					if (_A[(_X - 6) / 3][(_Y - 4) / 2].c == 1)
 					{
-						if (_A[(_X-6)/3][(_Y-4)/2].c == 1)
-						{
-							P1();
-						
-							temp = _continue();
-							if (temp == 0)
-							{
-								Score_p2 = 0;
-								check = 1;
-							}
-							else
-							{
-								Score_p2++;
-								starGame();
-							}
+						P1();
 
+						temp = _continue();
+						if (temp == 0)
+						{
+							Score_p2 = 0;
+							check = 1;
 						}
 						else
 						{
-							P2();
-						
-							temp = _continue();
-							if (temp == 0)
-							{
-								Score_p1 = 0;
-								check = 1;
-							}
-							else
-							{
-								Score_p1++;
-								starGame();
-							}
+							Score_p2++;
+							starGame();
+						}
 
-
-						};
 					}
 					else
-						if (dem + demy == (BOARD_SIZE - 1) * (BOARD_SIZE - 1))
-						{
-							HOA();
-							dem = 0;
-							demy = 0;
-							temp = _continue();
-							if (temp == 0)
-							{
-								Score_p1 = 0;
-								Score_p2 = 0;
-								check = 1;
-							}
-							else {
-								starGame();
-							}
-						}
-						if (check == 1) break;
+					{
+						P2();
 
+						temp = _continue();
+						if (temp == 0)
+						{
+							Score_p1 = 0;
+							check = 1;
+						}
+						else
+						{
+							Score_p1++;
+							starGame();
+						}
+
+
+					};
 				}
+				else
+					if (dem + demy == (BOARD_SIZE - 1) * (BOARD_SIZE - 1))
+					{
+						HOA();
+						dem = 0;
+						demy = 0;
+						temp = _continue();
+						if (temp == 0)
+						{
+							Score_p1 = 0;
+							Score_p2 = 0;
+							check = 1;
+						}
+						else {
+							starGame();
+						}
+					}
+				if (check == 1) break;
 
 			}
-	}
+		}
+	};
 	return 0;
 }
+
 void _cout(int x, int y, string c)
 {
 	gotoxy(x, y);
@@ -1004,7 +1003,7 @@ void about_us()
 		textcolor(Yellow);
 		_cout(i - 2, j - 2, "+"); _cout(i + 37, j - 2, "+");
 		_cout(i - 2, j + 10, "+"); _cout(i + 37, j + 10, "+");
-		_cout(i + 13, j + 10, "Nhom 6 !!");
+		_cout(i + 13, j + 10, "Nhom 14 !!");
 		textcolor(White);
 		for (int m = 0; m < 14; m++)
 		{
@@ -1401,4 +1400,3 @@ void Load(string fileName)    //Ham Load du lieu da luu
 	ff.close();
 
 }
-
